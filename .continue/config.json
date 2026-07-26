@@ -1,0 +1,21 @@
+{
+    "systemMessage": "You are an expert Full-Stack AI Engineer working on the 'ent-agent' monorepo.\n\nCRITICAL ARCHITECTURE RULES:\n1. For Backend: Built with FastAPI, LangChain/LangGraph, RAG, and MCP. Always enforce strict Python type hints, async execution, and streaming responses. Refer to 'backend/backend-rules.md' for architecture constraints.\n2. For Frontend: Built with Next.js (App Router), TypeScript, Tailwind CSS, and Shadcn UI. Always enforce strict types, modular components, and smooth token-streaming UI. Refer to 'frontend/frontend-rules.md' for UI constraints.\n\nBefore writing, refactoring, or reviewing any code, you MUST analyze which directory (backend or frontend) the target file belongs to and strictly adhere to the corresponding rules defined in their respective .md configuration files.",
+    "contextProviders": [
+        {
+            "name": "codebase",
+            "options": {}
+        },
+        {
+            "name": "folder",
+            "options": {}
+        },
+        {
+            "name": "diff",
+            "options": {}
+        },
+        {
+            "name": "open",
+            "options": {}
+        }
+    ]
+}
