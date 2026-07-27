@@ -9,7 +9,7 @@
 
 ## 2. Architecture & Directory Pattern
 * **Pattern**: Separation of Concerns. Never write LLM or Prompt logic inside FastAPI routers.
-* **Layers**: `routers/` (HTTP/WS endpoints) -> `services/` (Business logic) -> `agents/` (LangChain/MCP logic) -> `repository/` (Database/Vector DB operations).
+* **Layers**: `api/` (HTTP/WS endpoints) -> `services/` (Business logic) -> `agents/` (LangChain/MCP logic) -> `repositories/` (Database/Vector DB operations).
 * **MCP Integration**: Define all external systems (DBs, APIs) as MCP servers/clients. Follow strict MCP schemas for tool-calling.
 
 ## 3. Coding Guidelines for AI & Humans
