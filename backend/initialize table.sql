@@ -75,6 +75,7 @@ CREATE TABLE users (
     department_id   UNIQUEIDENTIFIER NULL,
     email           NVARCHAR(255)    NOT NULL UNIQUE,
     password_hash   NVARCHAR(255)    NOT NULL,
+    name            NVARCHAR(255)    NOT NULL,
     role            NVARCHAR(50)     NOT NULL,  -- 'org_admin' | 'dep_admin' | 'member'
     created_at      DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
     CONSTRAINT FK_users_org  FOREIGN KEY (org_id)        REFERENCES organizations(id),
@@ -236,10 +237,10 @@ INSERT INTO departments (id, org_id, name) VALUES
 -- Note: password_hash values here are placeholders only.
 -- In real code, always hash passwords with bcrypt/argon2.
 -- super_admin will be biggest role
-INSERT INTO users (id, org_id, department_id, email, password_hash, role) VALUES
-    (@userOrgAdmin,      @org1, NULL,         N'admin@abc.com',        N'$2b$hash_placeholder_1', N'org_admin'),
-    (@userFinanceAdmin,  @org1, @deptFinance, N'finance.lead@abc.com', N'$2b$hash_placeholder_2', N'dep_admin'),
-    (@userFinanceMember, @org1, @deptFinance, N'employee@abc.com',     N'$2b$hash_placeholder_3', N'member');    
+INSERT INTO users (id, org_id, department_id, email, password_hash, name, role) VALUES
+    (@userOrgAdmin,      @org1, NULL,         N'admin@abc.com',        N'$2b$hash_placeholder_1', N'name1', N'org_admin'),
+    (@userFinanceAdmin,  @org1, @deptFinance, N'finance.lead@abc.com', N'$2b$hash_placeholder_2', N'name2', N'dep_admin'),
+    (@userFinanceMember, @org1, @deptFinance, N'employee@abc.com',     N'$2b$hash_placeholder_3', N'name3', N'member');    
 
 -- 4. Data source (Finance department configures its own folder)
 INSERT INTO data_sources (id, org_id, department_id, source_type, path_or_config, sync_schedule, created_by)
