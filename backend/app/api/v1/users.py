@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.repositories.user import UserRepository
 from app.services.user import UserService
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserResponse
 
 router = APIRouter()
 
@@ -18,7 +18,7 @@ def create(user: UserCreate, service: UserService = Depends(get_service)):
     return service.create(user)
 
 
-@router.get("")
+@router.get("", response_model=list[UserResponse])
 def get_all(service: UserService = Depends(get_service)):
     return service.get_all()
 

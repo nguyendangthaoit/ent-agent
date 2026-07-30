@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
 from app.models.user import User
 
 
@@ -14,7 +15,11 @@ class UserRepository:
         return user
 
     def get_all(self):
-        return self.db.query(User).all()
+        stmt = select(User).options(
+            joinedload(User.organization),
+            joinedload(User.department),
+        )
+        return self.db.execute(stmt).scalars().all()
 
     def get_by_id(self, user_id):
         return self.db.query(User).filter(User.id == user_id).first()
