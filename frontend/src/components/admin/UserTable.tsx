@@ -1,28 +1,49 @@
 "use client";
 
-import { SquarePen, Trash2 } from "lucide-react";
-
-interface User {
-    id: string;
-    name: string;
-    department: string;
-    role: string;
-}
-
-const MOCK_USERS: User[] = [
-    { id: "U001", name: "Alice Johnson", department: "Engineering", role: "Developer" },
-    { id: "U002", name: "Bob Smith", department: "Design", role: "Designer" },
-    { id: "U003", name: "Charlie Lee", department: "Engineering", role: "Senior Developer" },
-    { id: "U004", name: "Diana Chen", department: "Marketing", role: "Marketing Lead" },
-    { id: "U005", name: "Eve Torres", department: "HR", role: "HR Manager" },
-];
+import React from "react";
+import { useUsers } from "@/src/hooks/useUsers";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
 export function UserTable() {
+    const { users, isLoading, error, refetch } = useUsers();
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center py-20">
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">Loading users…</span>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center gap-4 py-20">
+                <div className="flex items-center gap-2 text-destructive">
+                    <AlertCircle className="size-5" />
+                    <p className="text-sm font-medium">{error}</p>
+                </div>
+                <button
+                    onClick={refetch}
+                    className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                >
+                    <RefreshCw className="size-3" />
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-4">
             {/* Toolbar */}
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground">Users</h3>
+                <div>
+                    <h3 className="text-lg font-semibold text-foreground">Users</h3>
+                    <p className="text-sm text-muted-foreground">
+                        {users.length} user{users.length !== 1 ? "s" : ""} found
+                    </p>
+                </div>
                 <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors">
                     + Add User
                 </button>
@@ -34,10 +55,13 @@ export function UserTable() {
                     <thead className="bg-muted/50">
                         <tr>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                                ID
+                                Name
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                                Name
+                                Email
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                Organization
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                 Department
@@ -51,29 +75,41 @@ export function UserTable() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border bg-background">
-                        {MOCK_USERS.map((user) => (
-                            <tr key={user.id} className="hover:bg-muted/30 transition-colors">
-                                <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                                    {user.id}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-foreground">
-                                    {user.name}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                                    {user.department}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                                    {user.role}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
-                                    <div className="inline-flex items-center justify-end">
-                                        <button className="text-primary hover:underline"><SquarePen className="size-4 shrink-0" /></button>
-                                        <span className="mx-2 text-muted-foreground">|</span>
-                                        <button className="text-destructive hover:underline"><Trash2 className="size-4 shrink-0" /></button>
-                                    </div>
+                        {users.length === 0 ? (
+                            <tr>
+                                <td
+                                    colSpan={6}
+                                    className="px-4 py-12 text-center text-sm text-muted-foreground"
+                                >
+                                    No users found.
                                 </td>
                             </tr>
-                        ))}
+                        ) : (
+                            users.map((user) => (
+                                <tr key={user.email} className="hover:bg-muted/30 transition-colors">
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-foreground">
+                                        {user.name}
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
+                                        {user.email}
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
+                                        {user.org_name}
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
+                                        {user.department_name}
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
+                                        {user.role}
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
+                                        <button className="text-primary hover:underline">Edit</button>
+                                        <span className="mx-2 text-muted-foreground">|</span>
+                                        <button className="text-destructive hover:underline">Delete</button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
