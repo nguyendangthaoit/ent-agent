@@ -13,9 +13,9 @@ def get_service(db: Session = Depends(get_db)):
     return UserService(repo)
 
 
-# @router.post("")
-# def create(user: UserCreate, service: UserService = Depends(get_service)):
-#     return service.create(user)
+@router.post("")
+def create(user: UserCreate, service: UserService = Depends(get_service)):
+    return service.create(user)
 
 
 @router.get("")

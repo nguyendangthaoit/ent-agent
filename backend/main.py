@@ -1,4 +1,5 @@
 import uvicorn
+import app.models  # import for load models before create_all
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.router import api_router
@@ -21,7 +22,7 @@ app.add_middleware(
 )
 
 # create tables
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine) # do not need since we have alembic
 app.include_router(api_router)
 
 

@@ -1,9 +1,11 @@
 import enum
 import uuid
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, NVARCHAR, text
+
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, NVARCHAR, text
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.core.database import Base
 
 
@@ -15,6 +17,14 @@ class UserRole(str, enum.Enum):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (
+        # org_admin must NOT have a department; dep_admin/member MUST have one
+        CheckConstraint(
+            "(role = 'org_admin' AND department_id IS NULL) "
+            "OR (role IN ('dep_admin', 'member') AND department_id IS NOT NULL)",
+            name="CHK_role_dept_consistency",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UNIQUEIDENTIFIER,
@@ -63,6 +73,5 @@ class User(Base):
     )
 
     # Relationships
-    # org: Mapped["Organization"] = relationship(back_populates="users")  # type: ignore
-
-    # department: Mapped["Department | None"] = relationship(back_populates="users")  # type: ignore
+    organization: Mapped["Organization"] = relationship(back_populates="users")  # type: ignore
+    department: Mapped["Department | None"] = relationship(back_populates="users")  # type: ignore

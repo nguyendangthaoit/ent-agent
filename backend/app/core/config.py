@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool = True
     MAIL_SSL_TLS: bool = False
 
+    DATABASE_URL: str
+
     # 👇 load from .env
     model_config = SettingsConfigDict(env_file=".env")
 
