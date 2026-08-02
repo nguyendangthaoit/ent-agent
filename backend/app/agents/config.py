@@ -37,7 +37,7 @@ ROLE_DEFAULTS = {
 }
 
 
-def _build_llm(provider: str, model: str, temperature: float = 0.0, **kwargs):
+def _build_llm(provider: str, model: str, **kwargs):
     if provider not in PROVIDER_REGISTRY:
         raise ValueError(f"Unknown LLM provider: {provider}")
 
@@ -47,14 +47,13 @@ def _build_llm(provider: str, model: str, temperature: float = 0.0, **kwargs):
     if api_key:
         kwargs["api_key"] = api_key
 
-    return llm_class(model=model, temperature=temperature, **kwargs)
+    return llm_class(model=model, **kwargs)
 
 
 def get_llm(
     role: str,
     provider: str | None = None,
     model: str | None = None,
-    temperature: float = 0.0,
     **kwargs,
 ):
     """
@@ -69,7 +68,6 @@ def get_llm(
         model: Optional. Overrides the default model. If provided, `provider`
             must also be provided, since a model name alone cannot be mapped
             to the correct provider.
-        temperature: Sampling temperature, default 0.0.
         **kwargs: Extra keyword arguments passed through to the underlying
             LangChain chat model class.
 
@@ -120,4 +118,4 @@ def get_llm(
     else:
         final_model = default_model
 
-    return _build_llm(final_provider, final_model, temperature=temperature, **kwargs)
+    return _build_llm(final_provider, final_model, **kwargs)

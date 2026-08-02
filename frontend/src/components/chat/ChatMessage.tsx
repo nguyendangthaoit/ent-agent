@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { cn } from "@/src/lib/utils";
 import { Bot, User } from "lucide-react";
 
@@ -40,12 +40,12 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
                         : "bg-muted text-foreground rounded-bl-md",
                 )}
             >
-                <p className="whitespace-pre-wrap">{message.content}</p>
-                {isStreaming && (
-                    <span className="inline-block animate-pulse text-xs text-muted-foreground">
-                        Thinking...
-                    </span>
-                )}
+                <p className="whitespace-pre-wrap">
+                    {message.content}
+                    {isStreaming && (
+                        <span className="ml-0.5 inline-block h-4 w-1 animate-pulse bg-foreground align-text-bottom" />
+                    )}
+                </p>
             </div>
 
             {/* User Avatar */}

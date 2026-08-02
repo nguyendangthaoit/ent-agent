@@ -1,9 +1,32 @@
-const BASE_URL = "http://127.0.0.1:8000";
+import { env } from "./env";
+
+const BASE_URL = env.API_BASE_URL;
 
 interface RequestOptions {
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     headers?: Record<string, string>;
     body?: unknown;
+}
+
+export class ApiError extends Error {
+    constructor(
+        public status: number,
+        message: string,
+        public body?: unknown,
+    ) {
+        super(message);
+        this.name = "ApiError";
+    }
+}
+
+function getAuthHeader(): Record<string, string> {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function handleUnauthorized() {
+    localStorage.removeItem("access_token");
+    window.location.href = "/login";
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
@@ -13,6 +36,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
         method,
         headers: {
             "Content-Type": "application/json",
+            // ...getAuthHeader(),
             ...headers,
         },
     };
@@ -24,11 +48,47 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
     if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(`API Error ${response.status}: ${errorBody}`);
+        let errorBody: unknown;
+        try {
+            errorBody = await response.json();
+        } catch {
+            errorBody = await response.text();
+        }
+
+        if (response.status === 401) {
+            // handleUnauthorized();
+        }
+
+        throw new ApiError(response.status, `API Error ${response.status}`, errorBody);
+    }
+
+    if (response.status === 204) {
+        return undefined as T;
     }
 
     return response.json();
+}
+
+async function streamRequest(endpoint: string, body: unknown, signal?: AbortSignal): Promise<Response> {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            // ...getAuthHeader(),
+        },
+        body: JSON.stringify(body),
+        signal,
+    });
+
+    if (!response.ok) {
+        if (response.status === 401) {
+            // handleUnauthorized();
+        }
+        const errorText = await response.text();
+        throw new ApiError(response.status, `Stream Error ${response.status}`, errorText);
+    }
+
+    return response;
 }
 
 export const apiClient = {
@@ -43,4 +103,6 @@ export const apiClient = {
 
     delete: <T>(endpoint: string, headers?: Record<string, string>) =>
         request<T>(endpoint, { method: "DELETE", headers }),
+
+    stream: streamRequest,
 };

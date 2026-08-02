@@ -2,87 +2,39 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
-import { ChatMessage, type Message } from "./ChatMessage";
+import { ChatMessage } from "./ChatMessage";
 import { Button } from "../ui/button";
 import { cn } from "@/src/lib/utils";
-
-// Placeholder messages for preview
-const MOCK_MESSAGES: Message[] = [
-    {
-        id: "m1",
-        role: "assistant",
-        content: "Hello! How can I help you today?",
-        timestamp: new Date(),
-    },
-    {
-        id: "m2",
-        role: "user",
-        content: "Can you explain the project architecture?",
-        timestamp: new Date(),
-    },
-    {
-        id: "m3",
-        role: "assistant",
-        content:
-            "Sure! The project follows a modular architecture with:\n\n- **Frontend**: Next.js (App Router) + Tailwind CSS + Shadcn UI\n- **Backend**: FastAPI microservices\n- **State Management**: Zustand for global UI state\n- **AI Integration**: Vercel AI SDK for streaming responses\n\nWhat specific part would you like to explore?",
-        timestamp: new Date(),
-    },
-];
+import { useChat } from "@/src/hooks/useChat";
 
 export function ChatBox() {
-    const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
+    const { messages, isStreaming, sendMessage } = useChat();
     const [input, setInput] = useState("");
-    const [isStreaming, setIsStreaming] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    // Auto-scroll to bottom when new messages appear
+    // Auto-scroll to bottom when messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
     // Auto-resize textarea
-    const autoResizeTextarea = () => {
+    useEffect(() => {
         const textarea = textareaRef.current;
         if (textarea) {
             textarea.style.height = "auto";
             textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
         }
-    };
-
-    useEffect(() => {
-        autoResizeTextarea();
     }, [input]);
 
     const handleSend = () => {
         if (!input.trim() || isStreaming) return;
-
-        const userMessage: Message = {
-            id: `user-${Date.now()}`,
-            role: "user",
-            content: input.trim(),
-            timestamp: new Date(),
-        };
-
-        setMessages((prev) => [...prev, userMessage]);
+        sendMessage(input);
         setInput("");
-        // Reset textarea height after clearing
+        // Reset textarea height
         if (textareaRef.current) {
             textareaRef.current.style.height = "auto";
         }
-        setIsStreaming(true);
-
-        // Simulate an AI response after a brief delay (placeholder for real streaming)
-        setTimeout(() => {
-            const aiMessage: Message = {
-                id: `ai-${Date.now()}`,
-                role: "assistant",
-                content: "This is a placeholder response. Real AI streaming will be integrated later.",
-                timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, aiMessage]);
-            setIsStreaming(false);
-        }, 1500);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -101,7 +53,11 @@ export function ChatBox() {
                         <ChatMessage
                             key={msg.id}
                             message={msg}
-                            isStreaming={isStreaming && msg === messages[messages.length - 1] && msg.role === "assistant"}
+                            isStreaming={
+                                isStreaming &&
+                                msg === messages[messages.length - 1] &&
+                                msg.role === "assistant"
+                            }
                         />
                     ))}
                     <div ref={messagesEndRef} />
