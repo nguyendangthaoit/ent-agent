@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { Message } from "@/src/components/chat/ChatMessage";
 import { apiClient, ApiError } from "@/src/lib/apiClient";
+import { API_ENDPOINTS } from "@/src/lib/apiEndpoints";
 
 interface UseChatResult {
     messages: Message[];
@@ -99,7 +100,7 @@ export function useChat(): UseChatResult {
         (async () => {
             try {
                 const response = await apiClient.stream(
-                    "/api/v1/chat",
+                    API_ENDPOINTS.chat.send,
                     { prompt: trimmed, session_id: sessionIdRef.current },
                     controller.signal,
                 );

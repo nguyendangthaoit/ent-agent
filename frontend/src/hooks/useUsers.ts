@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { apiClient } from "@/src/lib/apiClient";
 import type { User } from "@/src/lib/types";
-
+import { API_ENDPOINTS } from "@/src/lib/apiEndpoints";
 type UseUsersResult = {
     users: User[];
     isLoading: boolean;
@@ -18,7 +18,7 @@ export function useUsers(): UseUsersResult {
     const [fetchKey, setFetchKey] = useState(0);
 
     useEffect(() => {
-        apiClient.get<User[]>("/api/v1/users")
+        apiClient.get<User[]>(API_ENDPOINTS.users.get_all)
             .then(setUsers)
             .catch((err) => {
                 setError(err instanceof Error ? err.message : "Failed to fetch users");
