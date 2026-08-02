@@ -4,12 +4,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.router import api_router
 from app.core.database import Base, engine
+from app.core.lifespan import lifespan
 
 # initialize instance FastAPI
 app = FastAPI(
     title="Ent-Agent API",
     description="Enterprise AI Agent Core Service",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # config CORS for Frontend (Next.js)
