@@ -16,7 +16,7 @@ export default function LoginPage() {
         setError(undefined);
 
         try {
-            // Backend sets httpOnly cookie via Set-Cookie header
+            // Route handler sets httpOnly cookie + returns { token_type }
             await apiClient.post(API_ENDPOINTS.auth.login, { email, password });
             router.push("/");
         } catch (err: unknown) {

@@ -17,7 +17,10 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: Session = Depends(get_db),
 ) -> User:
+
     token = credentials.credentials
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
     try:
         payload = decode_access_token(token)
@@ -26,14 +29,9 @@ def get_current_user(
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
-
-    user = db.get(User, uuid.UUID(user_id))
+    user = db.get(User, uuid.UUID(payload["sub"]))
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
-
     return user
 
 

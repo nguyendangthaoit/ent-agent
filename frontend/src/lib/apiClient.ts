@@ -1,7 +1,3 @@
-import { env } from "./env";
-
-const BASE_URL = env.API_BASE_URL;
-
 interface RequestOptions {
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     headers?: Record<string, string>;
@@ -20,8 +16,6 @@ export class ApiError extends Error {
 }
 
 function handleUnauthorized() {
-    // httpOnly cookies can't be cleared from client side;
-    // the backend invalidates the session. Just redirect.
     if (window.location.pathname === "/login") return;
     window.location.href = "/login";
 }
@@ -42,7 +36,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
         config.body = JSON.stringify(body);
     }
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    const response = await fetch(endpoint, config);
 
     if (!response.ok) {
         let errorBody: unknown;
@@ -67,9 +61,9 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 }
 
 async function streamRequest(endpoint: string, body: unknown, signal?: AbortSignal): Promise<Response> {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(endpoint, {
         method: "POST",
-        credentials: "include", // sends httpOnly cookie automatically
+        credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },

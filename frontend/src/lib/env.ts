@@ -7,5 +7,5 @@ function getEnvVar(key: string, fallback?: string): string {
 }
 
 export const env = {
-    API_BASE_URL: getEnvVar("NEXT_PUBLIC_API_BASE_URL", "http://127.0.0.1:8000"),
+    API_BASE_URL: getEnvVar("API_BASE_URL", "http://127.0.0.1:8000"),
 } as const;

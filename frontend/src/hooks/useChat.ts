@@ -124,10 +124,8 @@ export function useChat(): UseChatResult {
                             appendToAssistant(event.content);
                         } else if (event.type === "error") {
                             throw new Error(event.message ?? "Stream error");
-                        } else if (event.type === "done") {
-                            await reader.cancel();
+                        } else if (event.type === "done")
                             return;
-                        }
                     }
                 }
             } catch (err: unknown) {
