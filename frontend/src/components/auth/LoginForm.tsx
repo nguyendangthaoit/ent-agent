@@ -16,7 +16,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
         if (!email.trim() || !password.trim()) return;
         await onLogin?.(email.trim(), password.trim());
@@ -119,7 +119,7 @@ export function LoginForm({ onLogin, isLoading, error }: LoginFormProps) {
 
             {/* Footer hint */}
             <p className="text-center text-xs text-muted-foreground">
-                Demo: use any email and password (no real auth yet)
+                Enterprise  Agent
             </p>
         </div>
     );

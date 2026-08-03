@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoginForm } from "@/src/components/auth/LoginForm";
+import { apiClient, ApiError } from "@/src/lib/apiClient";
+import { API_ENDPOINTS } from "@/src/lib/apiEndpoints";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -13,19 +15,21 @@ export default function LoginPage() {
         setIsLoading(true);
         setError(undefined);
 
-        // Simulate a login request (placeholder for real API)
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            // For demo: accept any non-empty credentials
-            if (email && password) {
-                // Redirect to chat page after "login"
-                router.push("/");
+            // Backend sets httpOnly cookie via Set-Cookie header
+            await apiClient.post(API_ENDPOINTS.auth.login, { email, password });
+            router.push("/");
+        } catch (err: unknown) {
+            if (err instanceof ApiError) {
+                const body = err.body;
+                if (typeof body === "object" && body !== null && "detail" in body) {
+                    setError(String((body as Record<string, unknown>).detail));
+                } else {
+                    setError(`Login failed (${err.status}). Please try again.`);
+                }
             } else {
-                setError("Please enter your email and password.");
+                setError("Login failed. Please try again.");
             }
-        } catch {
-            setError("Login failed. Please try again.");
         } finally {
             setIsLoading(false);
         }

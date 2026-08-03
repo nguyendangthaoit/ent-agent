@@ -19,13 +19,10 @@ export class ApiError extends Error {
     }
 }
 
-function getAuthHeader(): Record<string, string> {
-    const token = localStorage.getItem("access_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 function handleUnauthorized() {
-    localStorage.removeItem("access_token");
+    // httpOnly cookies can't be cleared from client side;
+    // the backend invalidates the session. Just redirect.
+    if (window.location.pathname === "/login") return;
     window.location.href = "/login";
 }
 
@@ -34,9 +31,9 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
     const config: RequestInit = {
         method,
+        credentials: "include", // sends httpOnly cookie automatically
         headers: {
             "Content-Type": "application/json",
-            // ...getAuthHeader(),
             ...headers,
         },
     };
@@ -56,7 +53,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
         }
 
         if (response.status === 401) {
-            // handleUnauthorized();
+            handleUnauthorized();
         }
 
         throw new ApiError(response.status, `API Error ${response.status}`, errorBody);
@@ -72,9 +69,9 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 async function streamRequest(endpoint: string, body: unknown, signal?: AbortSignal): Promise<Response> {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: "POST",
+        credentials: "include", // sends httpOnly cookie automatically
         headers: {
             "Content-Type": "application/json",
-            // ...getAuthHeader(),
         },
         body: JSON.stringify(body),
         signal,
@@ -82,7 +79,7 @@ async function streamRequest(endpoint: string, body: unknown, signal?: AbortSign
 
     if (!response.ok) {
         if (response.status === 401) {
-            // handleUnauthorized();
+            handleUnauthorized();
         }
         const errorText = await response.text();
         throw new ApiError(response.status, `Stream Error ${response.status}`, errorText);
