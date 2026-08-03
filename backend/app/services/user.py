@@ -1,5 +1,5 @@
 from app.repositories.user import UserRepository
-from app.utils.hashing import hash_password
+from app.core.security import hash_password
 
 
 class UserService:
