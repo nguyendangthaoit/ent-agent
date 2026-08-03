@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import {
     Users,
@@ -8,9 +9,11 @@ import {
     Shield,
     Settings,
     BarChart3,
+    LogOut,
     type LucideIcon,
 } from "lucide-react";
-
+import { apiClient } from "@/src/lib/apiClient";
+import { API_ENDPOINTS } from "@/src/lib/apiEndpoints";
 interface NavItem {
     id: string;
     label: string;
@@ -31,6 +34,13 @@ interface AdminSidebarProps {
 }
 
 export function AdminSidebar({ activeNav, onNavChange }: AdminSidebarProps) {
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await apiClient.post(API_ENDPOINTS.auth.logout, {});
+        router.push("/login");
+    };
+
     return (
         <aside className="flex h-full w-64 flex-col border-r border-border bg-muted/30">
             {/* Header */}
@@ -59,9 +69,16 @@ export function AdminSidebar({ activeNav, onNavChange }: AdminSidebarProps) {
                 ))}
             </nav>
 
-            {/* Footer */}
-            <div className="border-t border-border p-3">
-                <p className="text-xs text-muted-foreground">Admin v0.1.0</p>
+            {/* Footer with Logout */}
+            <div className="border-t border-border p-3 space-y-2">
+                <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                >
+                    <LogOut className="size-4" />
+                    <span>Logout</span>
+                </button>
+                <p className="text-xs text-muted-foreground px-3">Admin v0.1.0</p>
             </div>
         </aside>
     );

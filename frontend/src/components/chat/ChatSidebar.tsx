@@ -1,7 +1,10 @@
 "use client"
-import { Plus, MessageSquare } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, MessageSquare, LogOut } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
+import { apiClient } from "@/src/lib/apiClient";
+import { API_ENDPOINTS } from "@/src/lib/apiEndpoints";
 
 // Placeholder type for a chat history item
 interface ChatSession {
@@ -46,6 +49,13 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ activeSessionId, onSessionSelect, onNewChat }: ChatSidebarProps) {
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await apiClient.post(API_ENDPOINTS.auth.logout, {});
+        router.push("/login");
+    };
+
     return (
         <aside className="flex h-full w-72 flex-col border-r border-border bg-muted/30">
             {/* New Chat Button */}
@@ -81,6 +91,19 @@ export function ChatSidebar({ activeSessionId, onSessionSelect, onNewChat }: Cha
                         </button>
                     ))}
                 </div>
+            </div>
+
+            {/* Logout */}
+            <div className="border-t border-border p-3">
+                <Button
+                    onClick={handleLogout}
+                    className="w-full justify-start gap-2"
+                    variant="ghost"
+                    size="sm"
+                >
+                    <LogOut className="size-4" />
+                    <span>Logout</span>
+                </Button>
             </div>
         </aside>
     );
