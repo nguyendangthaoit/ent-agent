@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { LoginForm } from "@/src/components/auth/LoginForm";
 import { apiClient, ApiError } from "@/src/lib/apiClient";
 import { API_ENDPOINTS } from "@/src/lib/apiEndpoints";
+import { getSafeRedirect } from "@/src/lib/utils";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | undefined>();
 
@@ -18,7 +20,8 @@ export default function LoginPage() {
         try {
             // Route handler sets httpOnly cookie + returns { token_type }
             await apiClient.post(API_ENDPOINTS.auth.login, { email, password });
-            router.push("/");
+            const redirectTo = getSafeRedirect(searchParams.get("redirect"));
+            router.push(redirectTo);
         } catch (err: unknown) {
             if (err instanceof ApiError) {
                 const body = err.body;
