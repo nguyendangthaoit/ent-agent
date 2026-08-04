@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { env } from "@/src/lib/env";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -32,23 +33,33 @@ async function proxy(request: NextRequest) {
 
     // SSE / streaming – pipe directly
     if (contentType.includes("text/event-stream")) {
-        return new Response(backendRes.body, {
+        const sseResponse = new NextResponse(backendRes.body, {
             status: backendRes.status,
             headers: {
                 "Content-Type": "text/event-stream",
-                "Cache-Control": "no-cache",
+                "Cache-Control": "no-cache, no-transform",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",
             },
         });
+
+        if (backendRes.status === 401 && accessToken) {
+            sseResponse.cookies.delete("access_token");
+        }
+
+        return sseResponse;
     }
 
     // Regular JSON – forward status + body
     const data = await backendRes.text();
-    return new NextResponse(data, {
+    const response = new NextResponse(data, {
         status: backendRes.status,
         headers: { "Content-Type": contentType || "application/json" },
     });
+    if (backendRes.status === 401 && accessToken)
+        response.cookies.delete("access_token");
+
+    return response;
 }
 
 export const GET = proxy;
